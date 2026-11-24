@@ -1,6 +1,6 @@
 # CourseFit
 
-An LLM agent that finds Cornell courses that fit your actual week. INFO 5940 team project.
+Personalized Cornell course recommendations through the Model Context Protocol (MCP). An INFO 5940 AI Innovation Lab team project.
 
 ## Team
 
@@ -12,51 +12,38 @@ An LLM agent that finds Cornell courses that fit your actual week. INFO 5940 tea
 | Sai Vamsi | sa2492 |
 | Aryan Patel | ap2568 |
 
-**Coding agent:** Claude Code and Codex.
-**AI-DLC version:** v1.0.1
+**Development tools** — Claude Code and Codex with AI-DLC v1.0.1
 
-## Project overview
+## Problem and rationale
 
-### 1. Problem and why an LLM
+A Cornell student looking for a three-credit elective might know it needs to count toward their minor, fit around work, and cover something related to AI. Do they want to build models, study how people use them, or explore how public institutions regulate them? Searching the Cornell Class Roster assumes the student already knows which terms and departments to try. CourseFit uses a **short, adaptive interview** to connect a student's interests, learning objectives, and career goals to courses they might otherwise overlook. An LLM can interpret an answer like *“I want to understand how a city decides whether to use facial recognition”* and find relevant descriptions across departments, even when the course title uses different language.
 
-Finding a course at Cornell is a constraint problem wearing a search box. A student who needs "one more 3-credit course that counts for a humanities distribution, fits around my job and my other classes, nothing before 10am or on Fridays, ideally something about cities or food" has to do it by hand: open their calendar, write down the gaps, browse Class Roster subject by subject, open each class, and check every lecture, discussion and lab time against those gaps. The roster's filters can't express "fits around my week" or "something about cities," and most students give up after a few subjects and settle for whatever they already knew about. CourseFit is for Cornell undergraduate and master's students during pre-enrollment and add/drop, especially those hunting for a filler course or a distribution requirement.
+## Planned LLM integration
 
-An LLM is the right tool because the hard part of the request is language, not lookup. Students describe what they want in loose, mixed terms (hard constraints, soft preferences, vague interests) that no fixed filter form captures. The LLM turns that into concrete searches, decides which roster queries to run and in what order, reads course titles and descriptions to judge topical fit, and explains the trade-offs between options in plain English. Everything that has a single correct answer (parsing the calendar, computing free time, checking conflicts) is done by ordinary code, so the LLM never does arithmetic on times.
+The primary deliverable is an **MCP service** that owns the interview and recommendation process. CourseFit decides when a preference is clear enough to search and when a follow-up could change the shortlist. It retrieves candidates, weighs the student's preferences, and explains why one course ranks above another using evidence from the course descriptions. The **host assistant** translates a student's request into structured input, displays the next question CourseFit returns, and presents the results. A simple React demo app can run a client agent that calls the same service.
 
-### 2. Planned LLM integration
+CourseFit will call hosted language models through **OpenRouter**. We will benchmark candidates on the same student scenarios before selecting a model.
 
-CourseFit is an agent, not a single prompt. The LLM runs a tool-calling loop over a small set of tools that we write: `search_classes` (queries the public Cornell Class Roster API by subject, keyword, level and distribution requirement), `get_class_details` (meeting times, sections, credits, prerequisites), `get_free_slots` (the student's weekly free time, computed from an uploaded `.ics` calendar plus any courses or constraints they state), and `check_fit` (whether every required meeting of a class falls inside those free slots). The agent decides which tools to call, filters and ranks the results, and returns a short list of options with reasons and the class numbers needed to enroll in Student Center.
+- **Interview quality** — Does a follow-up uncover a preference that changes the shortlist?
+- **Recommendation quality** — Do students prefer the results to a keyword-search baseline?
+- **Explanation accuracy** — Does the course data support each reason given?
+- **Speed and cost** — How quickly does the model respond, and what does a completed interview cost?
 
-The same tools are exposed two ways: a local web app (React + TypeScript UI over a small Python API) with its own agent loop, which shows recommendations as class cards on a weekly calendar grid next to the student's busy time, and an MCP server so the tools can be used directly from Claude or ChatGPT once Cornell rolls out free access to students in early 2027. The model is a free, open, tool-calling model run locally with **Ollama** (planned: `qwen3:8b`, with a smaller fallback for slower laptops), called through Ollama's Python client.
+## MVP scope and feasibility
 
-### 3. Scope and feasibility
+For the **December 16, 2026** MVP, we will scrape published requirements for a limited set of Cornell majors and minors and match them to courses offered in the target term.
 
-By the final deadline (December 16), CourseFit will let a student upload their calendar, optionally list current courses and add constraints in plain words, then ask for courses in natural language and get back ranked, conflict-free options for the next term, with explanations and class numbers. It will run locally through the web app and as an MCP server. It will not enroll students, sign in with a NetID, audit degree requirements, or use professor ratings or reviews; those are listed as out of scope in our vision document. The core is five separable pieces (roster client, calendar and free-time engine, fit checking, agent loop, local API and MCP server) plus the web UI split across our five team members, and every piece except the agent loop is deterministic and unit-testable, which keeps the project achievable in about three weeks of part-time work.
+1. **Student inputs** — The student selects from the supported majors and minors, identifies the requirement they want to satisfy, and specifies their desired credits. They can supply an iCalendar (`.ics`) file or start with an empty calendar.
+2. **Fit checks** — Deterministic tools check credits, supported requirement rules, and meeting conflicts, including required discussions and labs.
+3. **Ranked shortlist** — Each recommendation identifies a feasible section combination, the requirement it matches, and the preferences that drove its ranking.
 
-### 4. Collaboration plan
+Limiting the initial program coverage gives the team a set of rules it can check against Cornell's published requirements before the demo. Recommending individual courses lets us test whether the interview improves discovery for students with either busy or empty calendars. **Stretch goals** include transcript-based degree audits, full-semester schedule optimization, and recommendations for labs, clubs, and events.
 
-- **Meetings:** once a week, in person. AI-DLC gates (approvals of requirements, stories, design and units) happen in these meetings or in extra short sessions with everyone present, so the whole team makes those decisions together.
-- **Between meetings:** our WhatsApp group for questions, blockers and quick decisions. Code goes through GitHub: each person works on a branch for their unit and opens a pull request, which at least one teammate reviews before merging.
-- **Inception:** run once, together. Everyone answers the agent's questions and reviews each document before approval.
-- **Construction split (initial; we will re-split if anyone needs to):**
+## Collaboration plan
 
-| Unit | Owner |
-| --- | --- |
-| Cornell Class Roster API client + Web UI | Saksham Diwan |
-| Agent loop, tools and prompts | Uday Tyagi |
-| Calendar (`.ics`) import and free-time engine | Aditya Chandak |
-| Fit checking and result filtering | Sai Vamsi |
-| Local API (FastAPI) and MCP server | Aryan Patel |
+We will meet weekly in person and use WhatsApp between meetings for questions, blockers, and decisions. We will run one shared AI-DLC Inception workflow. Everyone will discuss the agent's questions, review the resulting documents, and request changes or approve them together. After we agree on the units of work, we will divide implementation across the five teammates. Each owner will work on a GitHub branch and open a pull request for at least one teammate to review before merging.
 
-## Repository layout
+## Repository guide
 
-```text
-CLAUDE.md                 AI-DLC v1.0.1 core workflow (Claude Code)
-.aidlc-rule-details/      AI-DLC v1.0.1 rule details
-docs/vision.md            Vision document (AI-DLC input)
-docs/technical-environment.md  Technical environment document (AI-DLC input)
-web/                      React + TypeScript UI (added during Construction)
-aidlc-docs/               Generated by AI-DLC (Inception artifacts, audit.md, aidlc-state.md)
-```
-
-Application code will live at the repository root during Construction, never inside `aidlc-docs/`.
+- [Vision](docs/vision.md) and [technical environment](docs/technical-environment.md) are the project's AI-DLC input documents.
+- [Codex instructions](AGENTS.md), [Claude Code instructions](CLAUDE.md), and the [shared rule details](.aidlc-rule-details/) configure the development workflow.
