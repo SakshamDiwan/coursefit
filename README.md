@@ -7,7 +7,7 @@ An LLM agent that finds Cornell courses that fit your actual week. INFO 5940 tea
 | Name | NetID |
 | --- | --- |
 | Saksham Diwan | sd966 |
-| Uday Tyagi | TODO |
+| Uday Tyagi | ut25 |
 | Aditya Chandak | TODO |
 | Sai Vamsi | TODO |
 | Aryan Patel | TODO |
