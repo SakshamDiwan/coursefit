@@ -12,7 +12,7 @@ An LLM agent that finds Cornell courses that fit your actual week. INFO 5940 tea
 | Sai Vamsi | TODO |
 | Aryan Patel | TODO |
 
-**Coding agent:** Claude Code. Teammates who use a different agent will add and commit that agent's AI-DLC rule files.
+**Coding agent:** Claude Code and Codex. Teammates who use a different agent will add and commit that agent's AI-DLC rule files.
 **AI-DLC version:** v1.0.1
 
 ## Project overview
