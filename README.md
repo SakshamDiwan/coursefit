@@ -20,24 +20,34 @@ A Cornell student looking for a three-credit elective might know it needs to cou
 
 ## Planned LLM integration
 
-The primary deliverable is an **MCP service** that owns the interview and recommendation process. CourseFit decides when a preference is clear enough to search and when a follow-up could change the shortlist. It retrieves candidates, weighs the student's preferences, and explains why one course ranks above another using evidence from the course descriptions. The **host assistant** translates a student's request into structured input, displays the next question CourseFit returns, and presents the results. A simple React demo app can run a client agent that calls the same service.
+The primary deliverable is a **hosted MCP service** that owns the interview and recommendation process. CourseFit decides when a preference is clear enough to search and when a follow-up could change the shortlist. It retrieves candidates, weighs the student's preferences, and explains why one course ranks above another using evidence from the course descriptions. The student's own **host assistant** does three things:
+- translates the student's request into structured input
+- reads the student's calendar, if they share it, and sends CourseFit only busy times
+- presents CourseFit's questions and results
 
-CourseFit will call hosted language models through **OpenRouter**. Our initial benchmark includes **Gemini 3.1 Flash Lite** and **DeepSeek V4 Flash** as low-cost options, **Claude Sonnet 4.6** as a mid-priced option, and **Claude Opus 4.8** as a higher-cost reasoning model. We will test whether the extra cost buys better follow-up questions and course rankings on the same Cornell student scenarios. Other OpenRouter models can enter the benchmark, and our own results will determine the demo model.
+We will demo and dogfood CourseFit in **Claude Desktop** and **Claude Code or Codex**. Each student connects with a personal API key, and their plans are saved so they can come back later.
+
+CourseFit will call hosted language models through **OpenRouter**, retrying a failed call once and then switching to a configured fallback model. Our initial benchmark includes:
+- **Gemini 3.1 Flash Lite** and **DeepSeek V4 Flash** as low-cost options
+- **Claude Sonnet 4.6** as a mid-priced option
+- **Claude Opus 4.8** as a higher-cost reasoning model
+
+A scripted harness runs the same Cornell student scenarios against each model to test whether the extra cost buys better follow-up questions and course rankings. Other OpenRouter models can enter the benchmark, and our own results will determine the demo model. The benchmark measures:
 
 - **Interview quality** — Does a follow-up uncover a preference that changes the shortlist?
-- **Recommendation quality** — Do students prefer the results to a keyword-search baseline?
+- **Recommendation quality** — Does every recommendation satisfy the student's hard constraints, and does the ranking reflect their stated priorities?
 - **Explanation accuracy** — Does the course data support each reason given?
 - **Speed and cost** — How quickly does the model respond, and what does a completed interview cost?
 
 ## MVP scope and feasibility
 
-For the **December 16, 2026** MVP, we will scrape the Cornell University Catalog for requirements in selected majors and minors. CourseFit will use the **Cornell Class Roster API** to list available terms and look up course offerings, sections, credits, and meeting times for the term the student selects. [Cornell Class Roster API documentation](https://classes.cornell.edu/content/FA26/api-details)
+For the **December 16, 2026** MVP, CourseFit covers **Spring 2027**. It runs on **AWS Lambda** with **PostgreSQL on RDS**. A reviewed script scrapes the Cornell University Catalog for a small, team-verified set of Information Science BA and Business minor requirements. A snapshot of Spring 2027 offerings from the **Cornell Class Roster API** is refreshed daily. It covers sections, credits, meeting times, and prerequisite text. [Cornell Class Roster API documentation](https://classes.cornell.edu/content/FA26/api-details)
 
-1. **Student inputs** — The student selects from the supported majors and minors, identifies the requirement they want to satisfy, and specifies their desired credits. They can supply an iCalendar (`.ics`) file or start with an empty calendar.
-2. **Fit checks** — Deterministic tools check credits, supported requirement rules, and meeting conflicts, including required discussions and labs.
-3. **Ranked shortlist** — Each recommendation identifies a feasible section combination, the requirement it matches, and the preferences that drove its ranking.
+1. **Student inputs** — The student sets their desired credits and, optionally, a supported requirement. Their assistant can send busy times from their calendar, or they can start with an empty schedule. Constraints such as "I work Fridays after noon" apply immediately and stay editable.
+2. **Fit checks** — Deterministic code checks credits, supported requirement rules, and meeting conflicts, including required discussions and labs. Prerequisites are shown but not enforced. Conditions CourseFit can't check are stated as assumptions the student can override.
+3. **Ranked shortlist** — Five courses, each with a recommended feasible section combination, the requirement it matches, and the preferences that drove its ranking. Selecting a course updates remaining credits and refreshes the list.
 
-Limiting the initial program coverage gives the team a set of rules it can check against Cornell's published requirements before the demo. Recommending individual courses lets us test whether the interview improves discovery for students with either busy or empty calendars. **Stretch goals** include transcript-based degree audits, full-semester schedule optimization, and recommendations for labs, clubs, and events.
+Limiting the initial program coverage gives the team a set of rules it can check against Cornell's published requirements before the demo. **Stretch goals** include transcript-based degree audits, full-semester schedule optimization, semantic course search, and recommendations for labs, clubs, and events.
 
 ## Collaboration plan
 
