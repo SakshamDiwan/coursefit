@@ -22,7 +22,7 @@ A Cornell student looking for a three-credit elective might know it needs to cou
 
 The primary deliverable is an **MCP service** that owns the interview and recommendation process. CourseFit decides when a preference is clear enough to search and when a follow-up could change the shortlist. It retrieves candidates, weighs the student's preferences, and explains why one course ranks above another using evidence from the course descriptions. The **host assistant** translates a student's request into structured input, displays the next question CourseFit returns, and presents the results. A simple React demo app can run a client agent that calls the same service.
 
-CourseFit will call hosted language models through **OpenRouter**. We will benchmark candidates on the same student scenarios before selecting a model.
+CourseFit will call hosted language models through **OpenRouter**. Our initial benchmark includes **Gemini 3.1 Flash Lite** and **DeepSeek V4 Flash** as low-cost options, **Claude Sonnet 4.6** as a mid-priced option, and **Claude Opus 4.8** as a higher-cost reasoning model. We will test whether the extra cost buys better follow-up questions and course rankings on the same Cornell student scenarios. Other OpenRouter models can enter the benchmark, and our own results will determine the demo model.
 
 - **Interview quality** — Does a follow-up uncover a preference that changes the shortlist?
 - **Recommendation quality** — Do students prefer the results to a keyword-search baseline?
@@ -31,7 +31,7 @@ CourseFit will call hosted language models through **OpenRouter**. We will bench
 
 ## MVP scope and feasibility
 
-For the **December 16, 2026** MVP, we will scrape published requirements for a limited set of Cornell majors and minors and match them to courses offered in the target term.
+For the **December 16, 2026** MVP, we will scrape the Cornell University Catalog for requirements in selected majors and minors. CourseFit will use the **Cornell Class Roster API** to list available terms and look up course offerings, sections, credits, and meeting times for the term the student selects. [Cornell Class Roster API documentation](https://classes.cornell.edu/content/FA26/api-details)
 
 1. **Student inputs** — The student selects from the supported majors and minors, identifies the requirement they want to satisfy, and specifies their desired credits. They can supply an iCalendar (`.ics`) file or start with an empty calendar.
 2. **Fit checks** — Deterministic tools check credits, supported requirement rules, and meeting conflicts, including required discussions and labs.

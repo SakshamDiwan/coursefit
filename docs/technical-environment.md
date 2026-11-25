@@ -15,7 +15,7 @@ The team will run CourseFit on a laptop. A compatible host launches the Python M
 ## Program rules and term offerings
 
 - **University Catalog.** Scrape the published 2026–27 Information Science BA and Business minor pages. Represent each supported rule with program, catalog year, category, permitted course options or conditions, and source URL. Review extracted rules before exposing them to users. Unverified categories stay out of the requirement picker. [Information Science BA](https://catalog.cornell.edu/programs/information-science-ba/) · [Business minor](https://catalog.cornell.edu/programs/business-minor/)
-- **Class Roster.** Fetch offerings for the requested term through the public API. Read section groups, meeting dates and times, class numbers, credits, and descriptions. Inspect the target term's fields before relying on them. Cache public roster responses by term and query, and limit live requests to one per second. [Cornell Class Roster API](https://classes.cornell.edu/content/SP26/api-details)
+- **Cornell Class Roster API v2.0.** Populate the term picker from `config/rosters.json`. Pass the selected roster code to `search/classes.json` to retrieve offerings for that term. Read section groups, meeting dates and times, class numbers, credits, and descriptions. Inspect the target term's fields before relying on them. Cache public roster responses by term and query, and limit live requests to one per second. [API documentation](https://classes.cornell.edu/content/FA26/api-details) · [Available rosters](https://classes.cornell.edu/api/2.0/config/rosters.json)
 - **Joining the sources.** Use catalog course identifiers and verified cross-listings to find offered sections. Carry the supporting rule and roster references through to the result. An unresolved mapping or missing meeting time cannot support a verified match. Label explicitly asynchronous sections separately.
 
 ## Planning session and recommendation flow
@@ -46,7 +46,16 @@ Bind local HTTP services to loopback and restrict browser origins to the demo cl
 
 Use pytest for the service, respx for external HTTP fixtures, FastAPI TestClient for the demo bridge, and Vitest with React Testing Library for the client. Run Ruff and TypeScript type checking. Exercise the MCP tools with an in-process test client and a fake model. Use synthetic calendars or sanitized exports for calendar tests, including empty files with valid calendar structure, recurrence exceptions, and date-boundary cases. Verify that neither model requests nor captured logs contain distinctive fixture event details. Test that an empty calendar, an unchanged selection retried twice, and a selected lecture with a conflicting required lab yield the expected plan.
 
-Run live model evaluations separately. For interview comparisons, give the evaluator a fixed student profile for each scenario and have them answer each model’s questions using only that profile. For ranking comparisons, give every model the same transcript and feasible candidate set. Compare personalized rankings with the keyword baseline, review whether each explanation cites supporting data, and measure interview length, response time, and cost. Record model IDs with the results. The vision document defines the user-facing evaluation targets.
+Set `COURSEFIT_MODEL` to the OpenRouter model ID for each evaluation run. The initial candidates span several price points.
+
+- **Google Gemini 3.1 Flash Lite** (`google/gemini-3.1-flash-lite`) is the low-cost, low-latency candidate. Test whether it can ask a useful follow-up and return a grounded shortlist quickly. [OpenRouter listing](https://openrouter.ai/google/gemini-3.1-flash-lite)
+- **DeepSeek V4 Flash** (`deepseek/deepseek-v4-flash`) adds a low-cost reasoning option. Compare it with Gemini on interview quality, response time, and cost per completed interview. [OpenRouter listing](https://openrouter.ai/deepseek/deepseek-v4-flash)
+- **Anthropic Claude Sonnet 4.6** (`anthropic/claude-sonnet-4.6`) gives us a mid-priced comparison with Opus. Use the same student answers and feasible courses to see whether students prefer either model's ranking. [OpenRouter listing](https://openrouter.ai/anthropic/claude-sonnet-4.6)
+- **Anthropic Claude Opus 4.8** (`anthropic/claude-opus-4.8`) is the higher-cost reasoning candidate. Test whether it makes better distinctions among feasible courses when a student has competing preferences. [OpenRouter listing](https://openrouter.ai/anthropic/claude-opus-4.8)
+
+Additional OpenRouter models can enter the same benchmark. The team will choose the demo model using its measured interview quality, ranking relevance, explanation accuracy, latency, and cost per completed interview.
+
+For interview comparisons, give the evaluator a fixed student profile for each scenario and have them answer each model’s questions using only that profile. For ranking comparisons, give every model the same transcript and feasible candidate set. Compare personalized rankings with the keyword baseline, review whether each explanation cites supporting data, and measure interview length, response time, and cost. Record model IDs with the results. The vision document defines the user-facing evaluation targets.
 
 ## Construction examples
 
