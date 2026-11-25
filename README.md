@@ -8,8 +8,8 @@ Personalized Cornell course recommendations through the Model Context Protocol (
 | --- | --- |
 | Saksham Diwan | sd966 |
 | Uday Tyagi | ut25 |
-| Aditya Chandak | ac3354 |
-| Sai Vamsi | sa2492 |
+| Aditya Mahesh Chandak | ac3354 |
+| Sai Vamsi Allada | sa2492 |
 | Aryan Patel | ap2568 |
 
 **Development tools** — Claude Code and Codex with AI-DLC v1.0.1
